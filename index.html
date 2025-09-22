@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2001 </title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  /* Reset some default */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 30px 15px;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #1f2937, #111827);
+    color: #f0f4f8;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2 {
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0 0 16px;
+    color: #e0e7ff;
+  }
+
+  .year-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    padding-bottom: 60px;
+  }
+
+  .calendar-container {
+    background: linear-gradient(145deg, #2a3150, #232a42);
+    border-radius: 18px;
+    padding: 20px 24px 30px;
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.8),
+      inset 0 0 20px #3b415c,
+      inset 0 -4px 30px #1f2239;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .calendar-container:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow:
+      0 15px 30px rgba(0, 0, 0, 1),
+      inset 0 0 30px #4f54a7,
+      inset 0 -6px 40px #2d3274;
+  }
+
+  .calendar-container h1 {
+    font-size: 1.6rem;
+    text-align: center;
+    color: #a5b4fc;
+    /* text shadow for glowing */
+    text-shadow: 0 0 8px #6576f7aa;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 6px;
+    user-select: none;
+  }
+
+  thead tr th {
+    color: #bcc8ff;
+    font-weight: 700;
+    border-bottom: 2px solid #7b85f5cc;
+    padding: 10px 0;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    background: linear-gradient(180deg, #2e3869 0%, #1f274b 100%);
+    border-radius: 6px 6px 0 0;
+  }
+
+  tbody tr td {
+    background: #323b65;
+    color: #d3dbff;
+    padding: 12px 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.6);
+    cursor: default;
+    transition: background 0.25s ease, color 0.25s ease, box-shadow 0.3s ease;
+    position: relative;
+    height: 48px;
+    user-select: none;
+  }
+
+  tbody tr td.week-number {
+    background: #3e4476;
+    color: #b5bfff;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    box-shadow: none;
+    cursor: default;
+    user-select: text;
+  }
+
+  /* Holidays */
+  tbody tr td.holiday {
+    background: linear-gradient(135deg, #ff5f6d, #ffc371);
+    color: #2b0f00;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow:
+      0 0 10px #ff855caa,
+      inset 0 0 8px #fff2e0a3;
+  }
+  tbody tr td.holiday:hover,
+  tbody tr td.holiday:focus-visible {
+    outline: none;
+    background: linear-gradient(135deg, #ff8a73, #ffe09e);
+    color: #360e00;
+    box-shadow:
+      0 0 20px #ffc07a,
+      inset 0 0 10px #fff4e2;
+  }
+  tbody tr td.holiday span.holiday-name {
+    display: block;
+    font-weight: 600;
+    font-size: 0.65rem;
+    color: #ffe1d1dd;
+    margin-top: 4px;
+    line-height: 1.1em;
+    font-style: italic;
+    letter-spacing: 0.03em;
+  }
+
+  /* Modal Styling */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    inset: 0;
+    background-color: rgba(217, 27, 27, 0.96);
+    backdrop-filter: blur(10px);
+    padding: 40px 20px;
+  }
+
+  .modal-content {
+    background: linear-gradient(135deg, #1e263b, #2c3553);
+    border-radius: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px 30px 40px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.85);
+    color: #e2e8f0;
+    text-align: center;
+    position: relative;
+    animation: modalFadeIn 0.3s ease forwards;
+  }
+
+  @keyframes modalFadeIn {
+    from {opacity:0; transform: translateY(-20px)}
+    to {opacity:1; transform: translateY(0)}
+  }
+
+  .modal-content img {
+    max-width: 90%;
+    height: auto;
+    border-radius: 12px;
+    margin: 18px 0 8px;
+    box-shadow: 0 5px 15px #000000aa;
+  }
+
+  .modal-content h2 {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    color: #fcd34d;
+    letter-spacing: 1.1px;
+    text-shadow: 0 0 5px #fbbf24aa;
+  }
+
+  .modal-content p {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #d1d5db;
+    margin-bottom: 10px;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    font-size: 32px;
+    font-weight: 700;
+    color: #f87171;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .close-btn:hover,
+  .close-btn:focus-visible {
+    color: #ef4444;
+    outline: none;
+  }
+
+  /* Scrollbar for year container if overflow */
+  .year-container {
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .year-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  .year-container::-webkit-scrollbar-thumb {
+    background: #4f46e5cc;
+    border-radius: 10px;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 768px) {
+    body {
+      padding: 20px 10px;
+    }
+    .calendar-container {
+      width: 100% !important;
+      margin: 0 auto !important;
+    }
+    .modal-content {
+      width: 95%;
+      padding: 25px;
+    }
+    .modal-content h2 {
+      font-size: 1.5rem;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+<h1 aria-label="Calendar year 2001">Calendar 2001</h1>
+<div class="year-container" id="yearContainer" role="main" aria-live="polite">
+  <!-- Month calendars get injected here -->
+</div>
+
+<!-- Holiday Modal -->
+<div id="holidayModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+  <div class="modal-content">
+    <button class="close-btn" id="modalCloseBtn" tabindex="0" aria-label="Close Modal">&times;</button>
+    <h2 id="modalTitle"></h2>
+    <p id="modalDesc"></p>
+    <img id="modalImg" alt="Holiday image" />
+  </div>
+</div>
+
+<script>
+  const year = 2001;
+
+  const holidays = {
+    "1-1": { name: "New Year's Day", description: "Celebration of the beginning of the year 2001.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Fireworks512.gif/240px-Fireworks512.gif" },
+    "1-15": { name: "Martin Luther King Jr. Day", description: "Honoring the civil rights leader. Third Monday of January.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Martin_Luther_King_Jr_NYWTS_2.png/240px-Martin_Luther_King_Jr_NYWTS_2.png" },
+    "2-19": { name: "Presidents' Day", description: "Federal holiday to honor presidents.", img: "https://cdn.britannica.com/14/123114-050-51F7552C/George-Washington-Abraham-Lincoln.jpg" },
+    "5-28": { name: "Memorial Day", description: "Honoring the military personnel who died while serving.", img: "https://www.va.gov/opa/publications/memday/images/memorial-day-hr.jpg" },
+    "7-4": { name: "Independence Day", description: "Commemorates the Declaration of Independence.", img: "https://cdn.britannica.com/21/78121-050-B302374D/US-Flag-waving-United-States-4-July.jpg" },
+    "9-3": { name: "Labor Day", description: "Celebrates American labor movement.", img: "https://cdn.britannica.com/66/166666-050-1DC3DAB1/labor-union-picket-line.jpg" },
+    "10-8": { name: "Columbus Day", description: "Commemorates Christopher Columbus' arrival in Americas.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Christopher_Columbus.PNG/240px-Christopher_Columbus.PNG" },
+    "11-11": { name: "Veterans Day", description: "Honors military veterans.", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Veterans_Day_parade_New_York_City_2014_%28cropped%29.jpg/320px-Veterans_Day_parade_New_York_City_2014_%28cropped%29.jpg" },
+    "11-22": { name: "Thanksgiving Day", description: "Celebration of gratitude and harvest.", img: "https://cdn.britannica.com/39/133739-050-391CEB4D/Thanksgiving-dinner.jpg" },
+    "12-25": { name: "Christmas Day", description: "Celebrates the birth of Jesus Christ.", img: "https://cdn.britannica.com/71/191971-050-7B923874/Christmas-tree-decorations.jpg" }
+  };
+
+  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const dayNames = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+  function getWeekNumber(d) {
+    const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const dayNum = date.getUTCDay() || 7;
+    date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+    return Math.ceil(((date - yearStart) / 86400000 + 1)/7);
+  }
+
+  function createCalendarTable(year, month) {
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const startDay = firstDay.getDay();
+
+    const table = document.createElement("table");
+    table.setAttribute("aria-label", `${monthNames[month]} ${year} calendar`);
+
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    const thWeek = document.createElement("th");
+    thWeek.textContent = "Wk";
+    trHead.appendChild(thWeek);
+    for(let d = 0; d < 7; d++) {
+      const th = document.createElement("th");
+      th.textContent = dayNames[d];
+      trHead.appendChild(th);
+    }
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    let day = 1;
+
+    for(let week=0; week<6; week++) {
+      if(day > daysInMonth) break;
+
+      const tr = document.createElement("tr");
+      let firstDateOfWeek = new Date(year, month, day - startDay);
+      let weekNum = getWeekNumber(firstDateOfWeek);
+      const tdWeekNum = document.createElement("td");
+      tdWeekNum.className = "week-number";
+      tdWeekNum.textContent = weekNum;
+      tdWeekNum.setAttribute("aria-label", `Week number ${weekNum}`);
+      tr.appendChild(tdWeekNum);
+
+      for(let weekday=0; weekday<7; weekday++) {
+        const td = document.createElement("td");
+
+        if((week === 0 && weekday < startDay) || day > daysInMonth) {
+          td.textContent = "";
+        } else {
+          const holidayKey = `${month + 1}-${day}`;
+          if(holidays[holidayKey]) {
+            td.classList.add("holiday");
+            td.setAttribute("tabindex", "0");
+            td.setAttribute("role", "button");
+            td.setAttribute("aria-label", `${holidays[holidayKey].name} holiday, click for details`);
+
+            const spanDay = document.createElement("span");
+            spanDay.textContent = day;
+            td.appendChild(spanDay);
+
+            const spanHolidayName = document.createElement("span");
+            spanHolidayName.className = "holiday-name";
+            spanHolidayName.textContent = holidays[holidayKey].name;
+            td.appendChild(spanHolidayName);
+
+            td.addEventListener("click", () => showModal(holidays[holidayKey]));
+            td.addEventListener("keydown", (e) => {
+              if(e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                showModal(holidays[holidayKey]);
+              }
+            });
+          } else {
+            td.textContent = day;
+          }
+          day++;
+        }
+        tr.appendChild(td);
+      }
+
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    return table;
+  }
+
+  function createMonthContainer(year, month) {
+    const container = document.createElement("section");
+    container.className = "calendar-container";
+    container.setAttribute("aria-label", `${monthNames[month]} ${year}`);
+
+    const h1 = document.createElement("h1");
+    h1.textContent = `${monthNames[month]} ${year}`;
+    container.appendChild(h1);
+
+    const table = createCalendarTable(year, month);
+    container.appendChild(table);
+
+    return container;
+  }
+
+  /* Modal Logic */
+  const modal = document.getElementById("holidayModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalDesc = document.getElementById("modalDesc");
+  const modalImg = document.getElementById("modalImg");
+  const modalCloseBtn = document.getElementById("modalCloseBtn");
+
+  function showModal(holiday) {
+    modalTitle.textContent = holiday.name;
+    modalDesc.textContent = holiday.description;
+    modalImg.src = holiday.img;
+    modalImg.alt = `${holiday.name} image`;
+    modal.style.display = "block";
+    modal.setAttribute("aria-hidden", "false");
+    modalCloseBtn.focus();
+    document.body.style.overflow = 'hidden'; // Prevent background scroll
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden", "true");
+    document.body.style.overflow = ''; // Re-enable scroll
+  }
+
+  modalCloseBtn.addEventListener("click", closeModal);
+  modalCloseBtn.addEventListener("keydown", (e) => {
+    if(e.key === "Enter" || e.key === " ") closeModal();
+  });
+
+  window.addEventListener("click", e => {
+    if(e.target === modal) closeModal();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if(e.key === "Escape" && modal.style.display === "block") closeModal();
+  });
+
+  // Generate the calendar for the whole year
+  function generateYearCalendar(year) {
+    const container = document.getElementById("yearContainer");
+    for(let month=0; month<12; month++) {
+      const monthElem = createMonthContainer(year, month);
+      container.appendChild(monthElem);
+    }
+  }
+
+  generateYearCalendar(year);
+</script>
+
+</body>
+</html>
